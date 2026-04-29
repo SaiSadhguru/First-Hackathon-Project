@@ -1,0 +1,850 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Sapthagiri NPS University - AI Campus Assistant</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            transition: all 0.3s ease;
+        }
+
+        .night-mode {
+            background: linear-gradient(135deg, #1a1a2e 0%, #16213e 100%);
+            color: #e0e0e0;
+        }
+
+        /* Header */
+        .header {
+            text-align: center;
+            padding: 18px 20px;
+            background: rgba(255, 255, 255, 0.1);
+            backdrop-filter: blur(10px);
+            border-bottom: 1px solid rgba(255, 255, 255, 0.2);
+            position: relative;
+        }
+
+        .logo {
+            width: 100px;
+            height: auto;
+            margin-bottom: 8px;
+            border-radius: 10px;
+            box-shadow: 0 8px 25px rgba(0, 0, 0, 0.3);
+        }
+
+        .header h1 {
+            color: white;
+            font-size: 2.2em;
+            text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.5);
+            margin-bottom: 6px;
+        }
+
+        /* User badge top-right */
+        .user-badge {
+            position: absolute;
+            top: 16px;
+            right: 20px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            background: rgba(255, 255, 255, 0.15);
+            border: 1px solid rgba(255, 255, 255, 0.25);
+            padding: 8px 16px;
+            border-radius: 30px;
+            color: #fff;
+            font-size: 0.88em;
+            font-weight: 600;
+            backdrop-filter: blur(10px);
+        }
+
+        .logout-btn {
+            background: rgba(255, 71, 87, 0.8);
+            border: none;
+            color: #fff;
+            padding: 5px 12px;
+            border-radius: 15px;
+            cursor: pointer;
+            font-size: 0.82em;
+            font-weight: 600;
+            transition: all 0.2s;
+        }
+
+        .logout-btn:hover {
+            background: #ff4757;
+            transform: scale(1.05);
+        }
+
+        /* Main layout */
+        .main-container {
+            display: flex;
+            min-height: 80vh;
+            gap: 20px;
+            padding: 20px;
+            max-width: 1400px;
+            margin: 0 auto;
+        }
+
+        /* Campus Map */
+        .campus-map {
+            flex: 1;
+            background: rgba(255, 255, 255, 0.95);
+            border-radius: 20px;
+            padding: 25px;
+            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.2);
+            backdrop-filter: blur(10px);
+            transition: all 0.3s ease;
+        }
+
+        .night-mode .campus-map {
+            background: rgba(30, 30, 50, 0.95);
+            color: #e0e0e0;
+        }
+
+        .campus-map h2 {
+            text-align: center;
+            color: #333;
+            margin-bottom: 20px;
+            font-size: 1.8em;
+        }
+
+        .night-mode .campus-map h2 {
+            color: #e0e0e0;
+        }
+
+        .map-container {
+            position: relative;
+            height: 450px;
+            background: linear-gradient(45deg, #f8f9fa, #e9ecef);
+            border-radius: 15px;
+            overflow: hidden;
+            margin-bottom: 20px;
+            box-shadow: inset 0 0 20px rgba(0, 0, 0, 0.1);
+            cursor: pointer;
+        }
+
+        .night-mode .map-container {
+            background: linear-gradient(45deg, #2a2a3a, #1a1a2a);
+        }
+
+        .location-pin {
+            position: absolute;
+            width: 28px;
+            height: 28px;
+            background: linear-gradient(135deg, #ff4757, #ff6b7a);
+            border-radius: 50% 50% 50% 0;
+            transform: rotate(-45deg);
+            cursor: pointer;
+            transition: all 0.4s cubic-bezier(0.68, -0.55, 0.265, 1.55);
+            box-shadow: 0 6px 20px rgba(255, 71, 87, 0.4);
+            border: 3px solid rgba(255, 255, 255, 0.8);
+        }
+
+        .location-pin:hover,
+        .location-pin.active {
+            transform: rotate(-45deg) scale(1.4);
+            box-shadow: 0 12px 40px rgba(255, 71, 87, 0.7);
+            z-index: 10;
+            animation: pulse 1s infinite;
+        }
+
+        @keyframes pulse {
+            0% {
+                box-shadow: 0 12px 40px rgba(255, 71, 87, 0.7);
+            }
+
+            50% {
+                box-shadow: 0 12px 50px rgba(255, 71, 87, 1);
+            }
+
+            100% {
+                box-shadow: 0 12px 40px rgba(255, 71, 87, 0.7);
+            }
+        }
+
+        .location-pin::after {
+            content: '';
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            width: 10px;
+            height: 10px;
+            background: white;
+            border-radius: 50%;
+            transform: translate(-50%, -50%);
+        }
+
+        .location-label {
+            position: absolute;
+            background: rgba(255, 255, 255, 0.95);
+            padding: 6px 12px;
+            border-radius: 20px;
+            font-size: 12px;
+            font-weight: bold;
+            color: #333;
+            white-space: nowrap;
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2);
+            transform: translateX(-50%);
+            transition: all 0.3s ease;
+        }
+
+        .night-mode .location-label {
+            background: rgba(50, 50, 70, 0.95);
+            color: #e0e0e0;
+        }
+
+        /* Location modal */
+        .location-info {
+            position: fixed;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            background: rgba(255, 255, 255, 0.98);
+            padding: 25px;
+            border-radius: 20px;
+            box-shadow: 0 25px 60px rgba(0, 0, 0, 0.3);
+            max-width: 400px;
+            max-height: 70vh;
+            overflow-y: auto;
+            display: none;
+            z-index: 1000;
+            backdrop-filter: blur(15px);
+        }
+
+        .night-mode .location-info {
+            background: rgba(30, 30, 50, 0.98);
+            color: #e0e0e0;
+        }
+
+        .location-info.active {
+            display: block;
+            animation: slideIn 0.3s ease;
+        }
+
+        @keyframes slideIn {
+            from {
+                opacity: 0;
+                transform: translate(-50%, -60%) scale(0.9);
+            }
+
+            to {
+                opacity: 1;
+                transform: translate(-50%, -50%) scale(1);
+            }
+        }
+
+        .close-info {
+            position: absolute;
+            top: 15px;
+            right: 20px;
+            background: none;
+            border: none;
+            font-size: 24px;
+            cursor: pointer;
+            color: #666;
+        }
+
+        /* Chatbot */
+        .chatbot-container {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            background: rgba(255, 255, 255, 0.95);
+            border-radius: 20px;
+            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.2);
+            backdrop-filter: blur(10px);
+            overflow: hidden;
+        }
+
+        .night-mode .chatbot-container {
+            background: rgba(30, 30, 50, 0.95);
+        }
+
+        .chat-header {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 20px;
+            text-align: center;
+        }
+
+        .chatbot-avatar {
+            width: 60px;
+            height: 60px;
+            border-radius: 50%;
+            margin: 0 auto 10px;
+            border: 4px solid rgba(255, 255, 255, 0.3);
+            box-shadow: 0 8px 25px rgba(0, 0, 0, 0.3);
+        }
+
+        .chat-messages {
+            flex: 1;
+            padding: 20px;
+            overflow-y: auto;
+            max-height: 500px;
+        }
+
+        .message {
+            margin-bottom: 15px;
+            display: flex;
+            gap: 10px;
+        }
+
+        .user-message {
+            justify-content: flex-end;
+        }
+
+        .bot-message {
+            justify-content: flex-start;
+        }
+
+        .message-content {
+            max-width: 70%;
+            padding: 12px 18px;
+            border-radius: 20px;
+            white-space: pre-wrap;
+        }
+
+        .user-message .message-content {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+        }
+
+        .bot-message .message-content {
+            background: rgba(255, 255, 255, 0.8);
+            color: #333;
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+        }
+
+        .night-mode .bot-message .message-content {
+            background: rgba(70, 70, 90, 0.8);
+            color: #e0e0e0;
+        }
+
+        .chat-input {
+            padding: 20px;
+            border-top: 1px solid rgba(0, 0, 0, 0.1);
+            display: flex;
+            gap: 10px;
+        }
+
+        .chat-input input {
+            flex: 1;
+            padding: 12px 20px;
+            border: 2px solid rgba(0, 0, 0, 0.1);
+            border-radius: 25px;
+            outline: none;
+            font-size: 16px;
+            transition: all 0.3s ease;
+        }
+
+        .chat-input input:focus {
+            border-color: #667eea;
+            box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
+        }
+
+        .night-mode .chat-input input {
+            background: rgba(50, 50, 70, 0.8);
+            color: #e0e0e0;
+            border-color: rgba(255, 255, 255, 0.2);
+        }
+
+        .btn {
+            padding: 12px 20px;
+            border: none;
+            border-radius: 25px;
+            cursor: pointer;
+            font-weight: bold;
+            transition: all 0.3s ease;
+        }
+
+        .send-btn {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+        }
+
+        .send-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 25px rgba(102, 126, 234, 0.4);
+        }
+
+        .voice-btn {
+            background: #ff6b6b;
+            color: white;
+            width: 50px;
+            height: 50px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 18px;
+        }
+
+        .voice-btn:hover:not(:disabled),
+        .voice-btn.listening {
+            background: #4ecdc4;
+            transform: scale(1.1);
+        }
+
+        .voice-btn:disabled {
+            background: #ccc;
+            cursor: not-allowed;
+        }
+
+        /* Controls */
+        .controls {
+            position: fixed;
+            bottom: 20px;
+            right: 20px;
+            display: flex;
+            gap: 10px;
+            z-index: 1000;
+        }
+
+        .night-toggle {
+            background: rgba(255, 255, 255, 0.9);
+            color: #333;
+            border: none;
+            padding: 12px;
+            border-radius: 50%;
+            cursor: pointer;
+            font-size: 18px;
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2);
+            transition: all 0.3s ease;
+        }
+
+        .night-toggle:hover {
+            transform: scale(1.1);
+        }
+
+        /* Info grid */
+        .info-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+            gap: 15px;
+            margin: 20px auto;
+            max-width: 1400px;
+            padding: 0 20px;
+        }
+
+        .info-card {
+            background: rgba(255, 255, 255, 0.8);
+            padding: 20px;
+            border-radius: 15px;
+            text-align: center;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            border: 2px solid transparent;
+            position: relative;
+            overflow: hidden;
+            color: #333;
+            font-weight: 600;
+        }
+
+        .info-card::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: -100%;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.4), transparent);
+            transition: left 0.5s;
+        }
+
+        .info-card:hover::before {
+            left: 100%;
+        }
+
+        .info-card:hover {
+            transform: translateY(-8px);
+            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.2);
+            border-color: #667eea;
+        }
+
+        .night-mode .info-card {
+            background: rgba(50, 50, 70, 0.8);
+            color: #e0e0e0;
+        }
+
+        @media (max-width: 768px) {
+            .main-container {
+                flex-direction: column;
+                padding: 10px;
+            }
+
+            .header h1 {
+                font-size: 1.5em;
+            }
+
+            .user-badge {
+                position: static;
+                margin-top: 10px;
+                justify-content: center;
+            }
+
+            .info-grid {
+                grid-template-columns: repeat(2, 1fr);
+            }
+        }
+    </style>
+</head>
+
+<body>
+
+    <div class="header">
+        <img src="https://tse4.mm.bing.net/th/id/OIP.G-4gqOISnJ_u6_q9QeFu0gHaEy?pid=Api&P=0&h=180" alt="Logo"
+            class="logo">
+        <h1>Sapthagiri NPS University</h1>
+        <div class="user-badge" id="userBadge">
+            <span id="userGreeting">👤 Loading...</span>
+            <button class="logout-btn" onclick="logout()">🚪 Logout</button>
+        </div>
+    </div>
+
+    <div class="main-container">
+        <!-- Map -->
+        <div class="campus-map">
+            <h2>🗺️ Interactive Live Campus Map</h2>
+            <div class="map-container" id="mapContainer">
+                <div class="location-pin" data-location="blocka" style="top:15%;left:12%;">
+                    <div class="location-label" style="top:-35px;left:50%;">Block A</div>
+                </div>
+                <div class="location-pin" data-location="blockb" style="top:35%;left:22%;">
+                    <div class="location-label" style="top:-35px;left:50%;">Block B</div>
+                </div>
+                <div class="location-pin" data-location="blockc" style="top:25%;right:18%;">
+                    <div class="location-label" style="top:-35px;right:50%;transform:translateX(50%);">Block C</div>
+                </div>
+                <div class="location-pin" data-location="canteen" style="bottom:25%;left:8%;">
+                    <div class="location-label" style="bottom:-35px;left:50%;">Canteen</div>
+                </div>
+                <div class="location-pin" data-location="hostel" style="top:65%;right:12%;">
+                    <div class="location-label" style="top:-35px;right:50%;transform:translateX(50%);">Hostel</div>
+                </div>
+                <div class="location-pin" data-location="lab" style="top:48%;left:48%;">
+                    <div class="location-label" style="top:-35px;left:50%;">Labs</div>
+                </div>
+                <div class="location-pin" data-location="ground" style="bottom:8%;right:28%;">
+                    <div class="location-label" style="bottom:-35px;right:50%;transform:translateX(50%);">Ground</div>
+                </div>
+            </div>
+            <p style="text-align:center;color:#666;font-style:italic;">👆 Click on any pin for detailed information</p>
+        </div>
+
+        <!-- Chatbot -->
+        <div class="chatbot-container">
+            <div class="chat-header">
+                <img src="https://as2.ftcdn.net/v2/jpg/05/65/06/85/1000_F_565068563_jSzYovhlcrwcVTOm05akpqVdZXdoOaNE.jpg"
+                    alt="AI" class="chatbot-avatar">
+                <h3>Sapthagiri AI Assistant</h3>
+                <p>Hi! I'm here to help you with all college queries 📚✨</p>
+            </div>
+            <div class="chat-messages" id="chatMessages">
+                <div class="message bot-message">
+                    <div class="message-content">👋 Welcome to Sapthagiri NPS University! Click map pins or ask about
+                        courses, fees, library, timings, etc!</div>
+                </div>
+            </div>
+            <div class="chat-input">
+                <input type="text" id="messageInput" placeholder="Type your query or use voice 🎤..."
+                    autocomplete="off">
+                <button class="voice-btn btn" id="voiceBtn" title="Voice Input">🎤</button>
+                <button class="send-btn btn" id="sendBtn">Send</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Location Modal -->
+    <div class="location-info" id="locationInfo">
+        <button class="close-info" id="closeInfo">&times;</button>
+        <div id="locationContent"></div>
+    </div>
+
+    <!-- Info Cards -->
+    <div class="info-grid" id="infoGrid">
+        <div class="info-card" data-info="courses">📚 Courses</div>
+        <div class="info-card" data-info="fees">💰 Fees</div>
+        <div class="info-card" data-info="hostel">🏠 Hostel</div>
+        <div class="info-card" data-info="library">📖 Library</div>
+        <div class="info-card" data-info="timings">⏰ Timings</div>
+        <div class="info-card" data-info="placements">🎯 Placements</div>
+        <div class="info-card" data-info="internships">💼 Internships</div>
+        <div class="info-card" data-info="facilities">🏛️ Facilities</div>
+    </div>
+
+    <div class="controls">
+        <button class="night-toggle" id="nightToggle">🌙</button>
+    </div>
+
+    <script>
+        // ── Auth Guard ──────────────────────────────────────────
+        (function () {
+            if (localStorage.getItem('snpsLoggedIn') !== 'true') {
+                window.location.href = 'login.html';
+            }
+        })();
+
+        function logout() {
+            localStorage.removeItem('snpsLoggedIn');
+            localStorage.removeItem('snpsUserName');
+            localStorage.removeItem('snpsUserRole');
+            window.location.href = 'login.html';
+        }
+
+        // Show logged-in user
+        const userName = localStorage.getItem('snpsUserName') || 'User';
+        const userRole = localStorage.getItem('snpsUserRole') || 'student';
+        document.getElementById('userGreeting').textContent =
+            `👤 ${userName} (${userRole.charAt(0).toUpperCase() + userRole.slice(1)})`;
+
+        // ── College Data ────────────────────────────────────────
+        const collegeData = {
+            courses: "📚 Courses Offered:\n• B.Tech: CSE, CSE-DS, AIDS, AIML, ECE, EEE\n• BCA\n• MBA",
+            fees: "💰 Updated Fee Structure:\n• B.Tech - ₹3 Lakhs per year\n• Other courses - ₹2.5 Lakhs per year",
+            hostel: "🏠 Hostel Information:\n• Fees: ₹1.25 Lakhs per year\n• Double & Triple sharing available\n• Separate hostels for boys & girls\n• Mess facility included\n• 24/7 security & WiFi",
+            library: "📖 Library Information:\n• Central Library with 50,000+ books\n• Digital Library with research databases\n• E-journals & online resources\n• 24/7 reading room\n• Open: 8AM - 8PM",
+            timings: "⏰ College Timings:\n• 9:00 AM to 4:00 PM (Mon–Fri)\n• Saturday: 9:00 AM to 1:00 PM\n• Sunday: Closed",
+            placements: "🎯 Placement Highlights:\n• Placement Rate: ~70–95%\n• Average Package: ₹3–8 LPA\n• Highest Package: ₹10–40 LPA\n• Top Recruiters: TCS, Infosys, Wipro, Accenture",
+            internships: "💼 Internship Opportunities:\n• Available from 2nd/3rd year\n• PPO (Pre-Placement Offer) possible\n• Industry partnerships\n• Stipend-based opportunities",
+            facilities: "🏛️ Campus Facilities:\n• Smart Classrooms & Labs\n• Wi-Fi Campus-wide\n• Medical Center\n• Transport Facility\n• Sports Ground",
+            locations: {
+                blocka: "🏢 Block A - Main Academic Block\n• Administrative offices\n• Lecture halls (101-110)\n• Faculty cabins\n• Exam cell\n• Capacity: 500+ students",
+                blockb: "🏗️ Block B - Engineering Block\n• CSE, ECE, EEE, DS, AIML, AIDS departments\n• Computer labs (20+ systems)\n• Electronics workshops\n• Seminar halls",
+                blockc: "🏛️ Block C - Management Block\n• MBA department\n• BCA classrooms\n• Conference rooms\n• Placement cell\n• Innovation lab",
+                canteen: "🍕 Canteen & Food Court\n• Open: 7:30 AM - 8:00 PM\n• North & South Indian food\n• Fast food & snacks\n• Seating: 200+ students",
+                hostel: "🏠 Hostel Complex\n• Boys & Girls separate wings\n• 500+ capacity\n• Double/Triple sharing\n• 24/7 security & warden\n• Laundry service",
+                lab: "🧪 Laboratory Complex\n• Physics, Chemistry labs\n• Computer labs (50+ systems)\n• High-end workstations\n• Research equipment\n• AC environment",
+                ground: "⚽ Sports Ground\n• Cricket, Football, Volleyball\n• Basketball court\n• Running track (400m)\n• Annual sports events\n• Flood lights available"
+            }
+        };
+
+        // ── DOM refs ────────────────────────────────────────────
+        const chatMessages = document.getElementById('chatMessages');
+        const messageInput = document.getElementById('messageInput');
+        const sendBtn = document.getElementById('sendBtn');
+        const voiceBtn = document.getElementById('voiceBtn');
+        const mapContainer = document.getElementById('mapContainer');
+        const locationInfo = document.getElementById('locationInfo');
+        const locationContent = document.getElementById('locationContent');
+        const closeInfo = document.getElementById('closeInfo');
+        const infoGrid = document.getElementById('infoGrid');
+        const nightToggle = document.getElementById('nightToggle');
+
+        // ── Voice ───────────────────────────────────────────────
+        const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
+        let recognition;
+        if (SpeechRecognition) {
+            recognition = new SpeechRecognition();
+            recognition.continuous = false;
+            recognition.interimResults = false;
+            recognition.lang = 'en-IN';
+            recognition.onstart = () => { voiceBtn.classList.add('listening'); voiceBtn.textContent = '🔴'; };
+            recognition.onresult = (e) => { messageInput.value = e.results[0][0].transcript; sendMessage(); };
+            recognition.onend = () => { voiceBtn.classList.remove('listening'); voiceBtn.textContent = '🎤'; };
+            recognition.onerror = () => { voiceBtn.classList.remove('listening'); voiceBtn.textContent = '🎤'; addMessage("🔊 Voice ended. Please type instead.", 'bot'); };
+        }
+
+        voiceBtn.addEventListener('click', () => {
+            if (recognition) recognition.start();
+            else addMessage("🔇 Voice not supported in this browser.", 'bot');
+        });
+
+        // ── Gemini AI Setup ─────────────────────────────────────
+        const GEMINI_API_KEY = 'AIzaSyBczb3M4G-i9VgaIINQmQRLbP0_xsdO2NE';
+        const GEMINI_URL = `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash:generateContent?key=${GEMINI_API_KEY}`;
+
+        const UNIVERSITY_CONTEXT = `You are a friendly and knowledgeable AI Campus Assistant for Sapthagiri NPS University (also called Sapthagiri NPS University or SNPS University), located in Bangalore, India.
+
+Here is the university information you must use to answer questions:
+
+COURSES:
+- B.Tech: CSE, CSE-DS (Data Science), AIDS (AI & Data Science), AIML (AI & ML), ECE, EEE
+- BCA, MBA
+
+FEE STRUCTURE:
+- B.Tech: ₹3 Lakhs per year
+- Other courses: ₹2.5 Lakhs per year
+
+HOSTEL:
+- Fees: ₹1.25 Lakhs per year
+- Double & Triple sharing rooms
+- Separate hostels for boys & girls
+- Mess facility included, 24/7 security & WiFi
+
+LIBRARY:
+- Central Library with 50,000+ books
+- Digital Library with research databases
+- E-journals & online resources, 24/7 reading room
+- Open: 8AM - 8PM
+
+COLLEGE TIMINGS:
+- Monday to Friday: 9:00 AM to 4:00 PM
+- Saturday: 9:00 AM to 1:00 PM
+- Sunday: Closed
+
+PLACEMENTS:
+- Placement Rate: ~70%-95%
+- Average Package: ₹3-8 LPA
+- Highest Package: ₹10-40 LPA
+- Top Recruiters: TCS, Infosys, Wipro, Accenture, Cognizant
+- Training: Aptitude, Coding, Soft Skills
+
+INTERNSHIPS:
+- Available from 2nd/3rd year
+- PPO (Pre-Placement Offer) possible
+- Industry partnerships, stipend-based
+
+CAMPUS FACILITIES:
+- Smart Classrooms & Labs, Wi-Fi campus-wide
+- Medical Center, Transport Facility, Sports Ground
+- Block A (Admin/Lecture halls), Block B (Engineering), Block C (Management/MBA/BCA)
+- Canteen open 7:30 AM - 8:00 PM (North & South Indian food)
+- Labs: Physics, Chemistry, Computer labs (50+ systems)
+- Sports Ground: Cricket, Football, Volleyball, Basketball, 400m Running Track
+
+Current user logged in: ${userName} (Role: ${userRole})
+
+IMPORTANT RULES:
+- Always be helpful, friendly, and concise
+- Use emojis to make responses engaging
+- If asked about something not related to the university, politely redirect to university topics
+- Format responses clearly with bullet points when listing multiple items
+- Address the user by name (${userName}) occasionally to be personable`;
+
+        let chatHistory = [];
+
+        async function callGemini(userMessage) {
+            // Check for location keywords first
+            for (let loc in collegeData.locations) {
+                if (userMessage.toLowerCase().includes(loc)) {
+                    showLocationInfo(loc);
+                }
+            }
+
+            chatHistory.push({ role: 'user', parts: [{ text: userMessage }] });
+            if (chatHistory.length > 10) chatHistory = chatHistory.slice(-10);
+
+            const payload = {
+                system_instruction: { parts: [{ text: UNIVERSITY_CONTEXT }] },
+                contents: chatHistory
+            };
+
+            const res = await fetch(GEMINI_URL, {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify(payload)
+            });
+
+            if (!res.ok) throw new Error(`API error ${res.status}`);
+            const data = await res.json();
+            const reply = data.candidates[0].content.parts[0].text;
+            chatHistory.push({ role: 'model', parts: [{ text: reply }] });
+            return reply;
+        }
+
+        // ── Chat ────────────────────────────────────────────────
+        async function sendMessage() {
+            const msg = messageInput.value.trim();
+            if (!msg) return;
+            addMessage(msg, 'user');
+            messageInput.value = '';
+            sendBtn.disabled = true;
+            const typingId = addTypingIndicator();
+            try {
+                const reply = await callGemini(msg);
+                removeTypingIndicator(typingId);
+                addMessage(reply, 'bot');
+            } catch (err) {
+                removeTypingIndicator(typingId);
+                addMessage('⚠️ Sorry, I had trouble connecting. Please try again!', 'bot');
+            } finally {
+                sendBtn.disabled = false;
+            }
+        }
+
+        function addMessage(text, sender) {
+            const div = document.createElement('div');
+            div.className = `message ${sender}-message`;
+            const content = document.createElement('div');
+            content.className = 'message-content';
+            content.textContent = text;
+            div.appendChild(content);
+            chatMessages.appendChild(div);
+            chatMessages.scrollTop = chatMessages.scrollHeight;
+            return div;
+        }
+
+        function addTypingIndicator() {
+            const id = 'typing-' + Date.now();
+            const div = document.createElement('div');
+            div.className = 'message bot-message';
+            div.id = id;
+            div.innerHTML = `<div class="message-content" style="display:flex;gap:6px;align-items:center;padding:14px 18px;">
+                <span style="width:8px;height:8px;background:#667eea;border-radius:50%;display:inline-block;animation:dotPulse 1.2s infinite;"></span>
+                <span style="width:8px;height:8px;background:#667eea;border-radius:50%;display:inline-block;animation:dotPulse 1.2s 0.4s infinite;"></span>
+                <span style="width:8px;height:8px;background:#667eea;border-radius:50%;display:inline-block;animation:dotPulse 1.2s 0.8s infinite;"></span>
+            </div>`;
+            chatMessages.appendChild(div);
+            chatMessages.scrollTop = chatMessages.scrollHeight;
+            return id;
+        }
+
+        function removeTypingIndicator(id) {
+            const el = document.getElementById(id);
+            if (el) el.remove();
+        }
+
+        // ── Map ─────────────────────────────────────────────────
+        function showLocationInfo(key) {
+            const info = collegeData.locations[key];
+            locationContent.innerHTML = `<h3 style="margin-bottom:12px;">${info.split('\n')[0]}</h3><pre style="white-space:pre-wrap;font-family:inherit;line-height:1.7;">${info}</pre>`;
+            locationInfo.classList.add('active');
+            document.querySelectorAll('.location-pin').forEach(p => p.classList.remove('active'));
+            document.querySelector(`[data-location="${key}"]`)?.classList.add('active');
+        }
+
+        mapContainer.addEventListener('click', (e) => {
+            const pin = e.target.closest('.location-pin');
+            if (pin) {
+                const key = pin.dataset.location;
+                showLocationInfo(key);
+                addMessage(`📍 Showing details for ${pin.querySelector('.location-label').textContent}...`, 'bot');
+            }
+        });
+
+        closeInfo.addEventListener('click', () => {
+            locationInfo.classList.remove('active');
+            document.querySelectorAll('.location-pin').forEach(p => p.classList.remove('active'));
+        });
+
+        // ── Info Cards ──────────────────────────────────────────
+        infoGrid.addEventListener('click', (e) => {
+            if (e.target.classList.contains('info-card')) addMessage(collegeData[e.target.dataset.info], 'bot');
+        });
+
+        // ── Events ──────────────────────────────────────────────
+        sendBtn.addEventListener('click', sendMessage);
+        messageInput.addEventListener('keypress', (e) => { if (e.key === 'Enter') sendMessage(); });
+
+        let isNight = false;
+        nightToggle.addEventListener('click', () => {
+            isNight = !isNight;
+            document.body.classList.toggle('night-mode', isNight);
+            nightToggle.textContent = isNight ? '☀️' : '🌙';
+        });
+
+        // Welcome
+        setTimeout(() => addMessage(`🗺️ Welcome, ${userName}! Click any map pin or info card to explore the campus!`, 'bot'), 1500);
+    </script>
+</body>
+
+</html>
