@@ -6,6 +6,7 @@ b.Personalized answers based on user input
 c.Easy navigation with quick reply options
 d.Reduces workload on college staff
 e.Can handle multiple users at the same time
+f. Has admin and student access also
 
 Tech Stack-
 a.Frontend: HTML, CSS, JavaScript
@@ -29,6 +30,8 @@ LIVE LINK- https://69f4a0d8e155829e5b31ed44--aiclgquerychatbot.netlify.app/login
 <img width="1600" height="825" alt="image" src="https://github.com/user-attachments/assets/7cbed3ed-892d-4efa-bd6a-3444936c6bdb" />
 <img width="1600" height="900" alt="image" src="https://github.com/user-attachments/assets/40b34d68-e289-44f6-bc80-64cd505d8e5c" />
 <img width="1600" height="812" alt="image" src="https://github.com/user-attachments/assets/e942c39b-e9e6-4f33-868d-21159bdb35ef" />
+<img width="1124" height="562" alt="Screenshot 2026-05-01 182614" src="https://github.com/user-attachments/assets/4160d3ed-ca34-46d0-8b85-3a64922aa379" />
+<img width="1919" height="912" alt="Screenshot 2026-05-01 182556" src="https://github.com/user-attachments/assets/6afaa043-fd98-43c0-ade6-55fdc43e7aed" />
 
 
 
