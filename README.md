@@ -23,7 +23,7 @@ e.Run the backend server locally
 f.Test chatbot in browser
 g.Deploy using Firebase / Heroku / Netlify
 
-LIVE LINK- https://69f1bf8ff24b9c23a15a39d7--aichatbot-clgquery.netlify.app/login.html
+LIVE LINK- https://69f4a0d8e155829e5b31ed44--aiclgquerychatbot.netlify.app/login.html
 
 <img width="1600" height="842" alt="image" src="https://github.com/user-attachments/assets/d9381c43-27d8-4778-8148-5ceb5b518bde" />
 <img width="1600" height="825" alt="image" src="https://github.com/user-attachments/assets/7cbed3ed-892d-4efa-bd6a-3444936c6bdb" />
